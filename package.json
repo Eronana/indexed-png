@@ -1,6 +1,6 @@
 {
   "name": "indexed-png",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A PNG encoder to create indexed PNG images",
   "main": "dist/index.js",
   "scripts": {
