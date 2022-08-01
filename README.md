@@ -20,4 +20,5 @@ for (let r = 0; r < 6; r++) {
   const data = Buffer.from(Array(width * height).fill(0).map((_, i) => i % (6 * 6 * 6)));
   (await createPNG(data, palette, width, height)).pipe(fs.createWriteStream('test.png'));
 })();
+
 ```

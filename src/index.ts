@@ -86,28 +86,28 @@ export async function createIDAT(data:Buffer, width:number, height:number) {
 }
 
 export class IndexedPNG {
-  constructor(public stream:Readable) { }
+  private chunks:Buffer[] = []
 
-  public writeStream(s:Buffer|string) {
-    this.stream.push(s);
+  public write(chunk:Buffer) {
+    this.chunks.push(chunk);
   }
 
   public writeChunk(type:string, data:Buffer) {
-    this.writeStream(createIntBuf(data.length));
+    this.write(createIntBuf(data.length));
     let crc = CRC32.bstr(type);
-    this.writeStream(type);
+    this.write(Buffer.from(type));
     crc = CRC32.buf(data, crc);
-    this.writeStream(data);
-    this.writeStream(createIntBuf(crc));
+    this.write(data);
+    this.write(createIntBuf(crc));
   }
 
   public writeIEND() {
     // this.writeChunk('IEND', Buffer.alloc(0));
-    this.writeStream(IEND_CHUNK);
+    this.write(IEND_CHUNK);
   }
 
   public writeHeader() {
-    this.writeStream(PNG_HEADER);
+    this.write(PNG_HEADER);
   }
 
   public writeIHDR(spec:IHDR) {
@@ -121,11 +121,14 @@ export class IndexedPNG {
   public async writeIDAT(data:Buffer, width:number, height:number) {
     this.writeChunk('IDAT', await createIDAT(data, width, height));
   }
+
+  public getData() {
+    return Buffer.concat(this.chunks);
+  }
 }
 
 export async function createPNG(data:Buffer, palette:number[], width:number, height = data.length / width) {
-  const rs = new Readable({ read() {} });
-  const png = new IndexedPNG(rs);
+  const png = new IndexedPNG();
   png.writeHeader();
   png.writeIHDR({
     width,
@@ -139,5 +142,5 @@ export async function createPNG(data:Buffer, palette:number[], width:number, hei
   png.writePLTE(palette);
   await png.writeIDAT(data, width, height);
   png.writeIEND();
-  return rs;
+  return png.getData();
 }
