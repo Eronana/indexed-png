@@ -1,11 +1,11 @@
 {
   "name": "indexed-png",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A PNG encoder to create indexed PNG images",
   "main": "dist/index.js",
   "scripts": {
     "test": "ts-node src/test.ts",
-    "build": "tsc src/index.ts -d --outDir dist --target esnext --moduleResolution node -m commonjs"
+    "build": "tsc src/index.ts -d --outDir dist --target es2017 --moduleResolution node -m commonjs"
   },
   "repository": {
     "type": "git",
