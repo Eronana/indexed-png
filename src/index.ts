@@ -28,13 +28,6 @@ export interface IHDR {
   interlaceMethod:number;
 }
 
-
-function createIntBuf(a:number) {
-  const buf = Buffer.alloc(4);
-  buf.writeInt32BE(a);
-  return buf;
-}
-
 export function createIHDR(spec:IHDR) {
   const buf = Buffer.alloc(13);
   buf.writeUInt32BE(spec.width);
@@ -51,7 +44,7 @@ export function createPLTE(palette:number[]|number[][]) {
   const buf = Buffer.alloc(256 * 3);
   if (typeof palette[0] === 'number') {
     for (let i = 0; i < 256; i++) {
-      buf[i * 3 + 0] = (<number>palette[i]  >> 16) & 0xff;
+      buf[i * 3 + 0] = (<number>palette[i] >> 16) & 0xff;
       buf[i * 3 + 1] = (<number>palette[i] >> 8) & 0xff;
       buf[i * 3 + 2] = <number>palette[i] & 0xff;
     }
@@ -84,6 +77,17 @@ export async function createIDAT(data:Buffer, width:number, height:number) {
   });
 }
 
+export function generateChunk(type:string, data:Buffer) {
+  // 4 bytes length + 4 bytes type + 4 bytes crc + data length
+  const buffer = Buffer.alloc(3 * 4 + data.length);
+  const crc = CRC32.buf(data, CRC32.bstr(type));
+  buffer.writeInt32BE(data.length)
+  buffer.write(type, 4);
+  data.copy(buffer, 8);
+  buffer.writeInt32BE(crc, buffer.length - 4);
+  return buffer;
+}
+
 export class IndexedPNG {
   private chunks:Buffer[] = []
 
@@ -92,12 +96,7 @@ export class IndexedPNG {
   }
 
   public writeChunk(type:string, data:Buffer) {
-    this.write(createIntBuf(data.length));
-    let crc = CRC32.bstr(type);
-    this.write(Buffer.from(type));
-    crc = CRC32.buf(data, crc);
-    this.write(data);
-    this.write(createIntBuf(crc));
+    this.write(generateChunk(type, data));
   }
 
   public writeIEND() {
