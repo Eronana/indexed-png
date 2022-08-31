@@ -116,6 +116,12 @@ export class IndexedPNG {
     this.writeChunk('PLTE', createPLTE(palette));
   }
 
+  public writeTRNS(palette:number[]) {
+    console.log(palette);
+    console.log(Buffer.from(palette));
+    this.writeChunk('tRNS', Buffer.from(palette));
+  }
+
   public async writeIDAT(data:Buffer, width:number, height:number) {
     this.writeChunk('IDAT', await createIDAT(data, width, height));
   }
@@ -125,7 +131,13 @@ export class IndexedPNG {
   }
 }
 
-export async function createPNG(data:Buffer, palette:number[], width:number, height = data.length / width) {
+export async function createPNG(data:Buffer, palette:number[], width:number, height?:number):Promise<Buffer>;
+export async function createPNG(data:Buffer, palette:number[], trnsPalette:number[], width:number, height?:number):Promise<Buffer>;
+export async function createPNG(data:Buffer, palette:number[], trnsPaletteWidth:number[]|number, widthHeight?:number, _height?:number) {
+  const hasTransPalette = typeof trnsPaletteWidth !== 'number';
+  const trnsPalette = hasTransPalette ? trnsPaletteWidth : undefined;
+  const width = hasTransPalette ? widthHeight! : trnsPaletteWidth;
+  const height = (hasTransPalette ? _height : widthHeight) || data.length / width;
   const png = new IndexedPNG();
   png.writeHeader();
   png.writeIHDR({
@@ -138,6 +150,9 @@ export async function createPNG(data:Buffer, palette:number[], width:number, hei
     interlaceMethod: 0,
   });
   png.writePLTE(palette);
+  if (trnsPalette) {
+    png.writeTRNS(trnsPalette);
+  }
   await png.writeIDAT(data, width, height);
   png.writeIEND();
   return png.getData();
