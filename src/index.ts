@@ -1,5 +1,4 @@
 import zlib = require('zlib');
-import { Readable } from 'stream';
 import CRC32 = require('crc-32');
 
 const PNG_HEADER = Buffer.from('\x89PNG\r\n\x1a\n', 'latin1');
