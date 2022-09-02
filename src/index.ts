@@ -117,8 +117,6 @@ export class IndexedPNG {
   }
 
   public writeTRNS(palette:number[]) {
-    console.log(palette);
-    console.log(Buffer.from(palette));
     this.writeChunk('tRNS', Buffer.from(palette));
   }
 
