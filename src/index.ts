@@ -131,9 +131,9 @@ export class IndexedPNG {
   }
 }
 
-export async function createPNG(data:Buffer, palette:number[], width:number, height?:number):Promise<Buffer>;
-export async function createPNG(data:Buffer, palette:number[], trnsPalette:number[], width:number, height?:number):Promise<Buffer>;
-export async function createPNG(data:Buffer, palette:number[], trnsPaletteWidth:number[]|number, widthHeight?:number, _height?:number) {
+export async function createPNG(data:Buffer, palette:number[]|number[][], width:number, height?:number):Promise<Buffer>;
+export async function createPNG(data:Buffer, palette:number[]|number[][], trnsPalette:number[], width:number, height?:number):Promise<Buffer>;
+export async function createPNG(data:Buffer, palette:number[]|number[][], trnsPaletteWidth:number[]|number, widthHeight?:number, _height?:number) {
   const hasTransPalette = typeof trnsPaletteWidth !== 'number';
   const trnsPalette = hasTransPalette ? trnsPaletteWidth : undefined;
   const width = hasTransPalette ? widthHeight! : trnsPaletteWidth;
